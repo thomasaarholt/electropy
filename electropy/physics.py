@@ -359,6 +359,10 @@ def k_vector(kV):
 
 def q_perpendicular(mrad, kV):
     '''Returns in invnm
+
+    Most accurate form would be:
+    (2*electron_mass*elementary_charge*
+    (keV*1000-dE))**(0.5)/hbar*sin(theta) * 1e-9
     '''
     theta = mrad/1000
     k = k_vector(kV)
