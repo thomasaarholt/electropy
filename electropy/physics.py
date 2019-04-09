@@ -1,6 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.constants import electron_mass, elementary_charge, c, Planck, hbar
+from scipy.constants import electron_mass, elementary_charge, c, hbar, h
 import electropy.physics
 from pathlib import Path
 import scipy.special
@@ -11,10 +10,11 @@ bohr = 0.529  # Å, bohr_radius
 def relativistic_wavelength(kV=300):
     'Returns relativistic wavelength in meters'
     import numpy as np
-    from scipy.constants import h, c, electron_mass, e
     V = 1e3*kV
     top = h*c
-    bottom = np.sqrt(e*V*(2*electron_mass*c**2 + e*V))
+    bottom = np.sqrt(
+        elementary_charge*V*(
+            2*electron_mass*c**2 + elementary_charge*V))
     wavelength = top / bottom
     return wavelength
 
@@ -59,7 +59,6 @@ def characteristic_scattering_angle(E_edge, keV):
     Rep. Prog. Phys. 72 (2009) 016502 (25pp)
 
     '''
-    from scipy.constants import c, electron_mass, e
     v = relativistic_velocity(keV)
     T = keV*1000
     edge = E_edge
@@ -155,6 +154,10 @@ def invm_to_invÅ(m):
     return m*1e-10
 
 
+def invm_to_invnm(m):
+    return m*1e-9
+
+
 def q_parallel_invÅ(eV, keV):
     '''
     Calculate the magnitude of the beam-parallel component of the
@@ -246,7 +249,7 @@ def wavefunction_transmitted(x, sigma, Vz, z):
 def interaction_parameter(kV):
     wavelength = relativistic_wavelength(kV)
     velocity = relativistic_velocity(kV)
-    return 2*pi*gamma(velocity)*electron_mass*elementary_charge*wavelength / Planck**2
+    return 2*pi*gamma(velocity)*electron_mass*elementary_charge*wavelength / h**2
 
 
 def projected_potential(Vs, slice_thickness):
@@ -290,8 +293,8 @@ def get_radius2D(cell, potential_spacing=0.05):
 
 def get_radius3D(cell, potential_spacing=0.05):
     shape = np.round(cell.cell.diagonal() / potential_spacing).astype(int)
-    I = np.indices((shape).astype(int), dtype="uint16")
-    I2 = np.stack(len(cell.positions)*[I])
+    I1 = np.indices((shape).astype(int), dtype="uint16")
+    I2 = np.stack(len(cell.positions)*[I1])
     diff = (I2.T - cell.positions.T/potential_spacing)
     diff = diff.astype('float32')
     R = np.linalg.norm(diff, axis=-2)*potential_spacing
@@ -320,7 +323,9 @@ def scattering_amplitude(scattering, q, n):
 
 
 def load_scattering_matrix():
-    with open(Path(electropy.physics.__file__).parent / "hartreefock.txt") as f:
+    with open(
+        Path(
+            electropy.physics.__file__).parent / "hartreefock.txt") as f:
         lines = f.readlines()
     scattering = np.zeros((len(lines), 4, 3), dtype="float32")
     for i, line in enumerate(lines):
@@ -332,3 +337,57 @@ def load_scattering_matrix():
 
 def mod_bessel_zero(x):
     return scipy.special.kn(0, x)
+
+
+def eV_to_Joule(eV):
+    return eV*elementary_charge
+
+
+def k_vector(kV):
+    E0 = eV_to_Joule(kV*1000)
+    return (2*electron_mass*E0 / hbar**2)**(1/2)
+
+
+# def q_perpendicular(invnm, kV):
+#     '''Returns in invnm
+#     '''
+#     k = k_vector(kV)
+#     theta = invnm_to_mrad(invnm)/1000
+#     qpr_invnm = invm_to_invnm(k*theta)
+#     return qpr_invnm
+
+
+def q_perpendicular(mrad, kV):
+    '''Returns in invnm
+    '''
+    theta = mrad/1000
+    k = k_vector(kV)
+    qpr_invnm = invm_to_invnm(k*theta)
+    return qpr_invnm
+
+
+def q_parallel(dE, kV):
+    '''dE in eV
+    Returns in invnm
+    Alternative formula: qll = k0*thetaE
+    '''
+    dE = eV_to_Joule(dE)
+    y = gamma(relativistic_velocity(kV))
+    E0 = eV_to_Joule(kV*1000)
+    qll = (electron_mass)**0.5*dE / (y*hbar*(2*E0)**0.5)
+    qll_invnm = invm_to_invnm(qll)
+    return qll_invnm
+
+
+def q_parallel_alt(dE, kV):
+    '''dE om eV
+    Returns in invnm
+    '''
+    k = k_vector(kV)
+    thetaE = characteristic_scattering_angle(dE, kV)
+    qll_invnm = invm_to_invnm(k*thetaE)
+    return qll_invnm
+
+
+def q_total(q_perp, dE, kV):
+    return (q_parallel(dE, kV)**2 + q_perp**2)**0.5
