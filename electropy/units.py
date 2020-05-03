@@ -1,4 +1,4 @@
-from electropy.physics import relativistic_velocity
+from electropy.beam import relativistic_velocity, relativistic_wavelength
 
 
 def invnm_to_mrad(k, kV=300):
