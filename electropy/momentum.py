@@ -1,5 +1,8 @@
-from physics import relativistic_velocity, eV_to_Joule
-from electropy.units import k_vector, invm_to_invnm, eV_to_Joule
+from electropy.beam import relativistic_velocity, relativistic_wavelength
+from electropy.units import k_vector, invm_to_invnm, eV_to_Joule, invm_to_invÅ
+from electropy.physics import gamma
+
+from scipy.constants import electron_mass, hbar, elementary_charge
 
 # def q_perpendicular(invnm, kV):
 #     '''Returns in invnm

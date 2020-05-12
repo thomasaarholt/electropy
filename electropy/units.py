@@ -1,4 +1,6 @@
-from electropy.physics import relativistic_velocity
+import numpy as np
+from electropy.beam import relativistic_velocity, relativistic_wavelength
+from scipy.constants import electron_mass, elementary_charge, c, hbar, h
 
 
 def invnm_to_mrad(k, kV=300):
@@ -55,6 +57,9 @@ def mrad_to_invnm(mrad, kV=300):
 def mrad_to_invÅ(mrad, kV=300):
     """Converts mrad units to reciprocal Å units
 
+    When measuring from 000 to a point on a diffraction pattern,
+    the angle calculated is the semi-angle (half full angle)
+    
     Sep 2018: Realised that there was an unnecessary
     factor of 2 inside the arctan.
     """
@@ -78,6 +83,21 @@ def invm_to_invnm(m):
 def eV_to_Joule(eV):
     return eV * elementary_charge
 
+def eV_to_wavelength(eV):
+    'electronvolt to nanometer. Returns inf if eV <= 0'
+    if np.isscalar(eV):
+        if eV <= 0.0:
+            return np.inf
+    else:
+        eV = np.array(eV)
+        eV[eV <= 0.0] = -1
+    wave = 1e9 * h*c / (elementary_charge*eV)
+    wave[wave < 0.0] = np.inf
+    return wave
+
+def wavelength_to_eV(nm):
+    'wavelength to electronvolt'
+    return h*c / (elementary_charge*(nm*1e-9))
 
 def k_vector(kV):
     E0 = eV_to_Joule(kV * 1000)

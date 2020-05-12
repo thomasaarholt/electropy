@@ -1,6 +1,13 @@
-from scipy.constants import electron_mass, elementary_charge, c, hbar, h
-from electropy.physics import relativistic_velocity, gamma
+import numpy as np
+from pathlib import Path
+import scipy.special
+import electropy.physics
 
+from scipy.constants import pi, electron_mass, elementary_charge, c, hbar, h, physical_constants
+from electropy.beam import relativistic_velocity, relativistic_wavelength
+from electropy.physics import gamma
+
+bohr = physical_constants['Bohr radius']
 
 def projected_potential(Vs, slice_thickness):
     return Vs * slice_thickness
@@ -125,7 +132,7 @@ def wavefunction_transmitted(x, sigma, Vz, z):
     return t * wavefunction(z)
 
 
-def wavefunction(z):
+def wavefunction(z, wavelength):
     return np.exp(2 * pi * 1j * z / wavelength)
 
 
