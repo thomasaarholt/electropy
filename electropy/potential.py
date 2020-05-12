@@ -127,9 +127,9 @@ def interaction_parameter(kV):
     )
 
 
-def wavefunction_transmitted(x, sigma, Vz, z):
+def wavefunction_transmitted(x, sigma, Vz, z, wavelength):
     t = transmission_function(x, sigma, Vz)
-    return t * wavefunction(z)
+    return t * wavefunction(z, wavelength)
 
 
 def wavefunction(z, wavelength):
