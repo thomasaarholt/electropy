@@ -3,7 +3,11 @@ from scipy.constants import electron_mass, elementary_charge, c, hbar, h
 from pathlib import Path
 import scipy.special
 
+<<<<<<< HEAD
 from electropy.units import eV_to_Joule, invm_to_invÅ
+=======
+#from electropy.units import eV_to_Joule, invm_to_invÅ
+>>>>>>> 501e771dac9fc370e5eb9170df16125b3615d204
 #from electropy.momentum import 
 pi = np.pi
 bohr = 0.529  # Å, bohr_radius

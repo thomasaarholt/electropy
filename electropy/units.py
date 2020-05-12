@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import numpy as np
 from electropy.beam import relativistic_velocity, relativistic_wavelength
 from scipy.constants import electron_mass, elementary_charge, c, hbar, h
+=======
+from electropy.beam import relativistic_velocity, relativistic_wavelength
+>>>>>>> 501e771dac9fc370e5eb9170df16125b3615d204
 
 
 def invnm_to_mrad(k, kV=300):
